@@ -16,7 +16,7 @@ This is an opt-in remote bridge for users who understand that MCP page content i
 
 ## Pairing
 
-The Worker pairing API accepts a 32-byte Ed25519 public key at `POST /pair/start` and returns a one-time code, transaction ID, and challenge. The code expires after five minutes and is stored hashed at rest. The desktop must retain the private key locally and sign canonical challenge messages to poll `POST /pair/status`. Revocation at `POST /pair/revoke` also requires a timestamped Ed25519 signature and a unique nonce; device revocation is checked on every MCP request.
+The Worker pairing API accepts a 32-byte Ed25519 public key at `POST /pair/start` and returns a one-time code, transaction ID, and challenge. The code expires after five minutes and is stored hashed at rest. The desktop must retain the private key locally and sign canonical challenge messages to poll `POST /pair/status`. Revocation at `POST /pair/revoke` also requires a timestamped Ed25519 signature bound to a nonce. The device and pairing-transaction state change atomically, so concurrent or replayed revocation requests are idempotent; device revocation is checked on every MCP request.
 
 The static `PAIRING_BOOTSTRAP_SECRET` mechanism has been removed from this Worker branch. The desktop-side Ed25519 key generation, native OS secure storage, local pairing UI, and signed API client are not yet implemented.
 
