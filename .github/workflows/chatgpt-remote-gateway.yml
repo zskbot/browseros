@@ -1,4 +1,5 @@
 name: ChatGPT Remote Gateway
+# CI validation gate: pairing tests -> TypeScript -> Wrangler dry-run.
 
 on:
   pull_request:
