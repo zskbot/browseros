@@ -329,15 +329,16 @@ export class GatewayState {
       const pairing = await txn.get<Pairing>(pairKey);
       if (!pairing || pairing.expiresAt < now || pairing.paired) return { error: "invalid_pairing_code" as const };
 
+      const pairTransactionKey = "pairtx:" + pairing.transactionId;
+      const pairTransaction = await txn.get<PairTransaction>(pairTransactionKey);
+      if (!pairTransaction || pairTransaction.expiresAt < now || pairTransaction.state !== "pending" || pairTransaction.deviceId !== pairing.deviceId) return { error: "invalid_pairing_code" as const };
+
       pairing.paired = true;
       const pairedAt = now;
       await txn.put("device:" + pairing.deviceId, {
         deviceId: pairing.deviceId, transactionId: pairing.transactionId, publicKey: pairing.publicKey,
         label: pairing.label, pairedAt, revoked: false
       });
-      const pairTransactionKey = "pairtx:" + pairing.transactionId;
-      const pairTransaction = await txn.get<PairTransaction>(pairTransactionKey);
-      if (!pairTransaction || pairTransaction.expiresAt < now || pairTransaction.state !== "pending") return { error: "invalid_pairing_code" as const };
       pairTransaction.state = "paired";
       await txn.put(pairTransactionKey, pairTransaction);
       await txn.delete(pairKey);
